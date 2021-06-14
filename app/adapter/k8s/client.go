@@ -1,21 +1,32 @@
 package k8s
 
 import (
-	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"flag"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/util/homedir"
+	"path/filepath"
 )
 
 type K8SClient struct {
-
+	ClientSet *kubernetes.Clientset
 }
 
+func newClient() (*kubernetes.Clientset, error) {
+	var kubeconfig *string
+	if home := homedir.HomeDir(); home != "" {
+		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
+	} else {
+		kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
+	}
+	flag.Parse()
 
-func newClient() (kubernetes.Interface, error) {
-	kubeConfig, err := clientcmd.BuildConfigFromFlags("", clientcmd.RecommendedHomeFile)
+	// use the current context in kubeconfig
+	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
 	if err != nil {
-		return nil, err
+		panic(err.Error())
 	}
 
-	return kubernetes.NewForConfig(kubeConfig)
+	// create the clientset
+	return kubernetes.NewForConfig(config)
 }
