@@ -6,6 +6,7 @@ type (
 	Config struct {
 		EnvConfig    EnvConfig    `mapstructure:"env"`
 		ServerConfig ServerConfig `mapstructure:"api"`
+		SlackConfig  SlackConfig
 	}
 
 	EnvConfig struct {
@@ -21,5 +22,10 @@ type (
 		ServerKeepAlive time.Duration `mapstructure:"server_keep_alive_ms" validate:"required"`
 		GracefulPeriod  time.Duration `mapstructure:"graceful_period" validate:"required"`
 		RequestTimeout  time.Duration `mapstructure:"request_timeout" validate:"required"`
+	}
+
+	SlackConfig struct {
+		Token         string
+		SingingSecret string
 	}
 )

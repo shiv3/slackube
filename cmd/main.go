@@ -20,8 +20,12 @@ func main() {
 			GracefulPeriod:  0,
 			RequestTimeout:  0,
 		},
+		SlackConfig: config.SlackConfig{
+			Token:         "",
+			SingingSecret: "",
+		},
 	}
-	api, err := api.NewServ	erImpl(&conf)
+	api, err := api.NewServerImpl(&conf)
 	if err != nil {
 		panic(err)
 	}

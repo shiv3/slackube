@@ -7,8 +7,6 @@ import (
 
 	"github.com/shiv3/slackube/app/usecase/list"
 
-	"github.com/shiv3/slackube/app/adapter/k8s"
-
 	"github.com/slack-go/slack"
 
 	"github.com/labstack/echo/v4"
@@ -24,6 +22,7 @@ type (
 
 	handlerImpl struct {
 		signingSecret string
+		slackBotToken string
 
 		CommandHandlers map[*regexp.Regexp]func()
 
@@ -31,14 +30,17 @@ type (
 	}
 )
 
-func NewHandlerImpl(signingSecret string) *handlerImpl {
-	return &handlerImpl{signingSecret: signingSecret}
+func NewHandlerImpl(signingSecret string, slackBotToken string) *handlerImpl {
+	return &handlerImpl{
+		signingSecret: signingSecret,
+		slackBotToken: slackBotToken,
+	}
 }
 
 var api = slack.New("")
 
 func (h handlerImpl) SlackEvents(c echo.Context) error {
-
+	ctx := c.Request().Context()
 	r := c.Request()
 	w := c.Response()
 	body, err := ioutil.ReadAll(r.Body)
@@ -67,38 +69,17 @@ func (h handlerImpl) SlackEvents(c echo.Context) error {
 			if r.MatchString(ev.Text) {
 				//api.PostMessage(ev.Channel, slack.MsgOptionText(fmt.Sprintf("Name Space List : %v",ns), false))
 
-				ks, err := k8s.NewK8SClientClient()
+				o, err := h.ListUseCaseImpl.ListNameSpace(ctx)
 				if err != nil {
 					return err
 				}
-
-				nsList, err := ks.NsList()
-				if err != nil {
-					return err
-				}
-
-				options := make([]*slack.OptionBlockObject, 0, len(nsList.Items))
-				for _, ns := range nsList.Items {
-					optionText := slack.NewTextBlockObject(slack.PlainTextType, ns.Name, false, false)
-					options = append(options, slack.NewOptionBlockObject(ns.Name, optionText, nil))
-				}
-
-				placeholder := slack.NewTextBlockObject(slack.PlainTextType, "Select NameSpace", false, false)
-				selectMenu := slack.NewOptionsSelectBlockElement(slack.OptTypeStatic, placeholder, "", options...)
-				actionBlock := slack.NewActionBlock("select-namespace", selectMenu)
-				text := slack.NewTextBlockObject(slack.MarkdownType, "Please select *namespace*.", false, false)
-				textSection := slack.NewSectionBlock(text, nil, nil)
-				//fallbackText := slack.MsgOptionText("This client is not supported.", false)
-				blocks := slack.MsgOptionBlocks(textSection, actionBlock)
-
-				if _, _, err := api.PostMessage(ev.Channel, blocks); err != nil {
+				if _, _, err := api.PostMessage(ev.Channel, o); err != nil {
 					w.WriteHeader(http.StatusInternalServerError)
 				}
 
 				//if _, err := api.PostEphemeral(ev.Channel, ev.User, fallbackText, blocks); err != nil {
 				//	w.WriteHeader(http.StatusInternalServerError)
 				//}
-
 			}
 		}
 	}

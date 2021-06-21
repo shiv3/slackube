@@ -12,7 +12,7 @@ import (
 )
 
 type K8SClient struct {
-	ListAdapterInterface list.ListAdapterInterface
+	list.ListAdapterInterface
 }
 
 func NewK8SClientClient() (K8SClient, error) {
