@@ -22,7 +22,7 @@ type ServerImpl struct {
 
 func NewServerImpl(config *config.Config) (ServerImpl, error) {
 	v1Router := v1.NewV1Router(
-		slackevents.NewHandlerImpl(),
+		slackevents.NewHandlerImpl(""),
 		ping.NewHandlerImpl("ok"),
 	)
 	return ServerImpl{

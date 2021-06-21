@@ -2,17 +2,20 @@ package k8s
 
 import (
 	"flag"
+	"path/filepath"
+
+	"github.com/shiv3/slackube/app/adapter/k8s/list"
+
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
-	"path/filepath"
 )
 
 type K8SClient struct {
-	ClientSet *kubernetes.Clientset
+	ListAdapterInterface list.ListAdapterInterface
 }
 
-func newClient() (*kubernetes.Clientset, error) {
+func NewK8SClientClient() (K8SClient, error) {
 	var kubeconfig *string
 	if home := homedir.HomeDir(); home != "" {
 		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
@@ -27,6 +30,11 @@ func newClient() (*kubernetes.Clientset, error) {
 		panic(err.Error())
 	}
 
+	ks, err := kubernetes.NewForConfig(config)
+
 	// create the clientset
-	return kubernetes.NewForConfig(config)
+	return K8SClient{
+		ListAdapterInterface: list.ListAdapter{ClientSet: ks},
+	}, err
+
 }

@@ -21,7 +21,7 @@ func main() {
 			RequestTimeout:  0,
 		},
 	}
-	api, err := api.NewServerImpl(&conf)
+	api, err := api.NewServ	erImpl(&conf)
 	if err != nil {
 		panic(err)
 	}
