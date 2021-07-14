@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: slackube
+  labels:
+    app: slackube
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: slackube
+  template:
+    metadata:
+      labels:
+        app: slackube
+    spec:
+      serviceAccountName: slakube-sa
+      containers:
+      - name: slackube
+        image: ghcr.io/shiv3/slackube:latest
+        ports:
+        - containerPort: 8080
+        - containerPort: 11000
+        env:
+        - name: ENV.ENV
+          value: dev
+        - name: ENV.PROJECT_ID
+          value: local
+        - name: ENV.LOG_LEVEL
+          value: debug
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/app
+      volumes:
+      - name: config-volume
+        configMap:
+          name: slackube-configmap
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  minReadySeconds: 10
