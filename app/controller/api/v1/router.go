@@ -2,7 +2,9 @@ package v1
 
 import (
 	"github.com/shiv3/slackube/app/controller/api/v1/slack"
+	"go.uber.org/zap"
 
+	"github.com/brpaz/echozap"
 	"github.com/labstack/echo/v4"
 	"github.com/shiv3/slackube/app/controller/api/v1/ping"
 )
@@ -48,5 +50,9 @@ func (r RouterImpl) Dispatch(e *echo.Echo) error {
 	group.GET(r.pingEndpoint, r.pingHandler.GetPing)
 	group.POST(r.slackEventsEndpoint, r.slackEventsHandler.SlackEvents)
 	group.POST(r.slackActionEndpoint, r.slackEventsHandler.SlackActions)
+
+	zapLogger, _ := zap.NewProduction()
+	e.Use(echozap.ZapLogger(zapLogger))
+
 	return nil
 }
