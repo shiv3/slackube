@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: slackube-configmap
+  labels:
+    app: slackube
+data:
+  config.toml: |-
+    [env]
+      env = "local"
+      service_name = "slackube"
+      project_id = "__"
+      log_level = "debug"
+    [api]
+      ping_path = "/ping"
+      slack_events_path = "/eventsapi"
+      slack_actions_path = "/interactive-endpoint"
+
+      server_port = 8080
+      metrics_port = 1111
+      server_keep_alive_ms = "1s"
+      graceful_period = "1s"
+      request_timeout = "200ms"
+    [slack]
+      signing_secret = "XXXXXXXXXXXX"
+      token = "XXXXXXXXXXXX"
