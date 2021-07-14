@@ -4,6 +4,8 @@ import (
 	"flag"
 	"path/filepath"
 
+	"k8s.io/client-go/rest"
+
 	"github.com/shiv3/slackube/app/adapter/k8s/img"
 
 	"github.com/shiv3/slackube/app/adapter/k8s/get"
@@ -22,22 +24,27 @@ type K8SAdapter struct {
 }
 
 func NewK8SClientClient() (K8SAdapter, error) {
-	var kubeconfig *string
-	if home := homedir.HomeDir(); home != "" {
-		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
-	} else {
-		kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
-	}
-	flag.Parse()
-
-	// use the current context in kubeconfig
-	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+	// first use InClusterConfig
+	config, err := rest.InClusterConfig()
 	if err != nil {
-		panic(err.Error())
+		// if couldn't get InClusterConfig, try to use local kubeconfig file
+		var kubeconfig *string
+		if home := homedir.HomeDir(); home != "" {
+			kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
+		} else {
+			kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
+		}
+		flag.Parse()
+		// use the current context in kubeconfig
+		config, err = clientcmd.BuildConfigFromFlags("", *kubeconfig)
+		if err != nil {
+			return K8SAdapter{}, err
+		}
 	}
-
 	ks, err := kubernetes.NewForConfig(config)
-
+	if err != nil {
+		return K8SAdapter{}, err
+	}
 	// create the clientset
 	return K8SAdapter{
 		List:  list.ListAdapter{ClientSet: ks},

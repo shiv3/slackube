@@ -14,7 +14,7 @@ spec:
       labels:
         app: slackube
     spec:
-      serviceAccountName: slakube-sa
+#      serviceAccountName: slakube-sa
       containers:
       - name: slackube
         image: ghcr.io/shiv3/slackube:latest
