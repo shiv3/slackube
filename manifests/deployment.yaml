@@ -17,7 +17,7 @@ spec:
 #      serviceAccountName: slakube-sa
       containers:
       - name: slackube
-        image: ghcr.io/shiv3/slackube:latest
+        image: ghcr.io/shiv3/slackube:main
         ports:
         - containerPort: 8080
         - containerPort: 11000
@@ -28,6 +28,16 @@ spec:
           value: local
         - name: ENV.LOG_LEVEL
           value: debug
+        - name: SLACK.SIGNING_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: slackube-secret
+              key: signing_secret
+        - name: SLACK.TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: slackube-secret
+              key: token
         volumeMounts:
         - name: config-volume
           mountPath: /etc/app
