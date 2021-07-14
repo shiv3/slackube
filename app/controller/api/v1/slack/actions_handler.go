@@ -19,10 +19,12 @@ func (h handlerImpl) SlackActions(c echo.Context) error {
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
+		fmt.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
 		return err
 	}
 	if err := h.auth(r.Header, body, c.Response()); err != nil {
+		fmt.Println(err)
 		return err
 	}
 
@@ -31,12 +33,13 @@ func (h handlerImpl) SlackActions(c echo.Context) error {
 
 	var actionCallBack *slack.InteractionCallback
 	if err := json.Unmarshal([]byte(payload), &actionCallBack); err != nil {
+		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return err
 	}
 	ctx := c.Request().Context()
 	if err := h.slackRouter.ActionsRoute(ctx, actionCallBack); err != nil {
-		fmt.Print(err)
+		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 	return nil
