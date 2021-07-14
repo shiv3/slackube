@@ -66,6 +66,10 @@ func (h UpdateImageHandler) SelectDeployment(ctx context.Context, actionCallBack
 		return err
 	}
 
+	if len(res) > 20 {
+		res = res[0:20]
+	}
+
 	optionGroups := make([]*slack.OptionGroupBlockObject, 0, len(res))
 	for _, dp := range res {
 		options := make([]*slack.OptionBlockObject, 0, len(res))
