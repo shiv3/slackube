@@ -124,7 +124,13 @@ func (h UpdateImageHandler) GetImageTag(ctx context.Context, actionCallBack *sla
 		return err
 	}
 
-	tags = tags[0:20]
+	if len(tags) < 1 {
+		return fmt.Errorf("failed get List tag")
+	}
+
+	if len(tags) > 20 {
+		tags = tags[0:20]
+	}
 	options := make([]*slack.OptionBlockObject, 0, len(tags))
 	for _, tag := range tags {
 		digest := strings.Split(tag.Digest, "sha256:")[1][0:12]
