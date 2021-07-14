@@ -15,12 +15,14 @@ func (h handlerImpl) SlackEvents(c echo.Context) error {
 	w := c.Response()
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
+		fmt.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
 		return err
 	}
 
 	eventsAPIEvent, err := slackevents.ParseEvent(body, slackevents.OptionNoVerifyToken())
 	if err != nil {
+		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return err
 	}
@@ -28,6 +30,8 @@ func (h handlerImpl) SlackEvents(c echo.Context) error {
 	// 認証
 	err = h.eventVerify(r.Header, body, w, eventsAPIEvent.Type)
 	if err != nil {
+		fmt.Print(err)
+		w.WriteHeader(http.StatusBadRequest)
 		return err
 	}
 
@@ -35,8 +39,8 @@ func (h handlerImpl) SlackEvents(c echo.Context) error {
 		innerEvent := eventsAPIEvent.InnerEvent
 		err := h.slackRouter.EventsRoute(ctx, innerEvent)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Print(err)
+			w.WriteHeader(http.StatusInternalServerError)
 			return err
 		}
 	}

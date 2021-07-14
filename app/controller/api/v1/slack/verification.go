@@ -2,6 +2,7 @@ package slack
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/slack-go/slack"
@@ -33,7 +34,7 @@ func (h handlerImpl) eventVerify(header http.Header, body []byte, w http.Respons
 		var r *slackevents.ChallengeResponse
 		err := json.Unmarshal([]byte(body), &r)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Println(err)
 			return err
 		}
 		w.Header().Set("Content-Type", "text")
