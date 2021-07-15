@@ -15,7 +15,8 @@ RUN CGO_ENABLED=0 go build \
 RUN mv ./slackube /slackube
 
 # -- main container --
-FROM gcr.io/distroless/base-debian10
+FROM gcr.io/google.com/cloudsdktool/cloud-sdk:latest
 COPY --from=build-env /slackube /slackube
+RUN gcloud auth configure-docker --quiet
 
 CMD ["/slackube"]
