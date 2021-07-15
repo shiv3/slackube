@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"regexp"
 
+	"github.com/shiv3/slackube/app/controller/slackcontoller/test"
+
 	"github.com/shiv3/slackube/app/controller/slackcontoller/updateimage"
 
-	"github.com/shiv3/slackube/app/controller/slackcontoller/get_ns"
+	"github.com/shiv3/slackube/app/controller/slackcontoller/get"
 
 	"github.com/slack-go/slack"
 
@@ -24,7 +26,8 @@ type SlackRouter struct {
 func NewSlackRouter(usecases *usecase.UsecasesImpl, slackClient *slack.Client) *SlackRouter {
 	return &SlackRouter{
 		mentionEventHandlers: map[*regexp.Regexp]func(ctx context.Context, ev *slackevents.AppMentionEvent) error{
-			regexp.MustCompile(`get ns`):       get_ns.NewListHandler(usecases, slackClient).GetNs,
+			regexp.MustCompile(`test`):         test.NewHandler(usecases, slackClient).Test,
+			regexp.MustCompile(`get ns`):       get.NewGetHandler(usecases, slackClient).GetNs,
 			regexp.MustCompile(`update image`): updateimage.NewUpdateImageHandler(usecases, slackClient).Start,
 		},
 		slackActionsHandlers: map[string]func(ctx context.Context, actionCallBack *slack.InteractionCallback) error{

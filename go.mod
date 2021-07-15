@@ -11,6 +11,7 @@ require (
 	github.com/heroku/docker-registry-client v0.0.0-20190909225348-afc9e1acc3d5
 	github.com/imdario/mergo v0.3.11 // indirect
 	github.com/labstack/echo/v4 v4.3.0
+	github.com/olekukonko/tablewriter v0.0.5
 	github.com/shiv3/configmapper v0.0.1
 	github.com/slack-go/slack v0.9.1
 	github.com/smartystreets/assertions v1.2.0 // indirect
